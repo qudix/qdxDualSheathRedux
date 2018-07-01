@@ -1,6 +1,6 @@
 /* global ngapp, xelib, registerPatcher, patcherUrl */
 
-let isOf = function(array, item) {
+let IsOf = function(array, item) {
     let is = false;
 
     array.forEach(arr => {
@@ -238,11 +238,11 @@ registerPatcher({
                 if (CheckIfUsable(record, 0)) {
                     let weapType = xelib.GetValue(record, 'DNAM\\Animation Type');
 
-                    if (isOf(['OneHandSword', 'OneHandAxe', 'OneHandMace', 'OneHandDagger'], weapType)) {
+                    if (IsOf(['OneHandSword', 'OneHandAxe', 'OneHandMace', 'OneHandDagger'], weapType)) {
                         AddWEAP(patchFile, helpers, settings, locals, record);
                         weapPatched += 1;
                     } 
-                    else if (isOf(['Staff'], weapType)) {
+                    else if (IsOf(['Staff'], weapType)) {
                         AddSTAF(patchFile, helpers, settings, locals, record);
                         weapPatched += 1;
                     } 
