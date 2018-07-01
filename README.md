@@ -5,6 +5,7 @@ It works, but it isn't finished, so don't complain if something goes wrong if yo
 
 # TODO:
 - [x] WEAP ARMA/ARMO
-- [ ] STAFF ARMA/ARMO
-- [ ] SHIELD ARMA/ARMO
+- [x] STAFF ARMA/ARMO
+- [x] SHIELD ARMA/ARMO
+- [x] BIPED SETTINGS MODAL
 - [ ] TEST, TEST, TEST
