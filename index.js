@@ -283,7 +283,8 @@ registerPatcher({
 
             const lists = Object.values(locals.List)
             for (const list of lists) {
-                xelib.AddArrayItem(property, 'Value\\[0]', 'Object v2\\FormID', xelib.LongName(list));
+                let item = xelib.AddArrayItem(property, 'Value\\[0]', 'Object v2\\FormID', xelib.LongName(list)); 
+                xelib.SetValue(item, 'Object v2\\Alias', 'None');
             }
 
             helpers.logMessage(`DSR: Finished`);
