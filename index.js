@@ -201,6 +201,7 @@ registerPatcher({
             return 100;
         },
         initialize: () => {
+            const skyrim = 'Skyrim.esm';
             const master = 'Dual Sheath Redux.esp';
 
             locals = {
@@ -208,7 +209,7 @@ registerPatcher({
                 templateARMA: xelib.GetElement(0, `${master}\\ARMA\\DSR_ARMATemplate`),
                 templateARMO: xelib.GetElement(0, `${master}\\ARMO\\DSR_ARMOTemplate`),
                 effectDSR: xelib.GetElement(0, `${master}\\MGEF\\DualSheathReduxEffect`),
-                keywordArmorShield: xelib.GetHexFormID(GetRecord(skyrim, 'KYWD\\ArmorShield')),
+                keywordArmorShield: xelib.GetElement(0, `${skyrim}\\KYWD\\ArmorShield`),
                 Added: 0
             }
 
@@ -283,7 +284,7 @@ registerPatcher({
                 if (!flag)
                     return;
 
-                const keyword = xelib.HasKeyword(record, 'ArmorShield');
+                const keyword = xelib.HasKeyword(record, locals.keywordArmorShield);
                 if (!keyword)
                     return;
 
