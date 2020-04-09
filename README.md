@@ -1,7 +1,7 @@
 # Dual Sheath Redux
 I'm sure you know what this is...
 
-It works, but it's not quite done yet, so don't complain if something goes wrong if you choose to install it
+At this point, everything should mostly work, besides some of the extras the java patcher had.
 
 You're going to need the latest [zEdit](https://github.com/z-edit/zedit) release
 

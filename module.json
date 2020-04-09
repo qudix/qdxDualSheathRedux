@@ -2,10 +2,10 @@
   "id": "qdxDualSheathRedux",
   "name": "Dual Sheath Redux",
   "author": "Qudix",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "released": "6/29/2018",
-  "updated": "12/16/2019",
-  "description": "An attempt to port the Dual Sheath Redux Patcher using UPF.",
+  "updated": "4/9/2019",
+  "description": "A port the Dual Sheath Redux Patcher to UPF.",
   "requires": ["unifiedPatchingFramework"],
   "moduleLoader": "UPF",
   "canHotLoad": true
