@@ -7,34 +7,6 @@ function GetBodyTemplate(record) {
     return xelib.GetElement(record, '[BODT|BOD2]');
 };
 
-function IsUsable(record, type = 0) {
-    if (xelib.EditorID(record) == '')
-        return false;
-
-    if (xelib.GetRecordFlag(record, 'Non-Playable'))
-        return false;
-
-    if (type == 0) {
-        if (xelib.GetValue(record, 'MODL\\MODL') == '')
-            return false;
-
-        if (!xelib.GetValue(record, 'MODL\\MODL').toLowerCase().includes('.nif'))
-            return false;
-
-        if (xelib.GetFlag(record, 'DNAM\\Flags', 'Non-playable'))
-            return false;
-    }
-    else if (type == 1) {
-        if (xelib.GetValue(record, 'MOD2\\MOD2') == '')
-            return false;
-
-        if (!xelib.GetValue(record, 'MOD2\\MOD2').toLowerCase().includes('.nif'))
-            return false;
-    }
-    
-    return true;
-}
-
 function AddWeapon(settings, locals, record) {
     const id = xelib.GetValue(record, 'EDID');
 
@@ -210,7 +182,6 @@ registerPatcher({
                 templateARMO: xelib.GetElement(0, `${master}\\ARMO\\DSR_ARMOTemplate`),
                 effectDSR: xelib.GetElement(0, `${master}\\MGEF\\DualSheathReduxEffect`),
                 keywordArmorShield: xelib.GetElement(0, `${skyrim}\\KYWD\\ArmorShield`),
-                Added: 0
             }
 
             locals.List = {
@@ -240,17 +211,19 @@ registerPatcher({
             helpers.cacheRecord(locals.List.keywordBackShieldNPCClk, "DSR_BackShieldListNPCClk");
 
             helpers.logMessage(`DSR: Processing records...`);
+
+            let Added = 0
             
             // Add weapons to list
             const weapons = helpers.loadRecords('WEAP');
             weapons.forEach(record => {
                 helpers.addProgress(50/weapons.length);
 
+                if (xelib.EditorID(record) == '')
+                    return false;
+
                 const type = xelib.GetValue(record, 'ETYP');
                 if ((type == 'BothHands [EQUP:00013F45]') || (type == ''))
-                    return;
-
-                if (!IsUsable(record))
                     return;
 
                 const type = xelib.GetValue(record, 'DNAM\\Animation Type');
@@ -268,17 +241,20 @@ registerPatcher({
                         return;
                 }
 
-                locals.Added += 1;
+                Added += 1;
             });
 
-            helpers.logMessage(`DSR: Added ${locals.Added} weapon records to lists`);
-
-            locals.Added = 0
+            helpers.logMessage(`DSR: Added ${Added} weapon records to lists`);
+            
+            Added = 0
             
             // Add armors to list
             const armors = helpers.loadRecords('ARMO');
             armors.forEach(record => {
                 helpers.addProgress(50/armors.length);   
+
+                if (xelib.EditorID(record) == '')
+                    return false;
 
                 const flag = xelib.GetRecordFlag(record, 'Shield');
                 if (!flag)
@@ -288,15 +264,12 @@ registerPatcher({
                 if (!keyword)
                     return;
 
-                if (!IsUsable(record, 1))
-                    return;
-
                 AddShield(settings, locals, record);
 
-                locals.Added += 1;   
+                Added += 1;   
             });
 
-            helpers.logMessage(`DSR: Added ${locals.Added} armor records to lists`);
+            helpers.logMessage(`DSR: Added ${Added} armor records to lists`);
 
             // Add lists to effect array
             const effect = xelib.CopyElement(locals.effectDSR, patchFile);
