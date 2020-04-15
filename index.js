@@ -222,12 +222,12 @@ registerPatcher({
                 if (xelib.EditorID(record) == '')
                     return false;
 
-                const type = xelib.GetValue(record, 'ETYP');
-                if ((type == 'BothHands [EQUP:00013F45]') || (type == ''))
+                const equip = xelib.GetValue(record, 'ETYP');
+                if ((equip == 'BothHands [EQUP:00013F45]') || (type == ''))
                     return;
 
-                const type = xelib.GetValue(record, 'DNAM\\Animation Type');
-                switch (type) {
+                const anim = xelib.GetValue(record, 'DNAM\\Animation Type');
+                switch (anim) {
                     case 'OneHandSword':
                     case 'OneHandAxe':
                     case 'OneHandMace':
@@ -276,9 +276,9 @@ registerPatcher({
             const script = xelib.GetScript(effect, 'DualSheathReduxEffect');
             const property = xelib.AddScriptProperty(script, 'Lists', 'Array of Object', 'Edited');
 
-            const lists = Object.values(locals.List)
-            for (const list of lists) {
-                let item = xelib.AddArrayItem(property, 'Value\\[0]', 'Object v2\\FormID', xelib.LongName(list)); 
+            const list = Object.values(locals.List)
+            for (const prop of list) {
+                let item = xelib.AddArrayItem(property, 'Value\\[0]', 'Object v2\\FormID', xelib.LongName(prop)); 
                 xelib.SetValue(item, 'Object v2\\Alias', 'None');
             }
 
