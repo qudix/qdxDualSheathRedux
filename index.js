@@ -3,11 +3,7 @@ function FileExists(path) {
     return fh.jetpack.exists(path) === 'file';
 }
 
-function GetBodyTemplate(record) {
-    return xelib.GetElement(record, '[BODT|BOD2]');
-};
-
-function AddWeapon(settings, locals, record) {
+function AddWeapon(helpers, settings, locals, record) {
     const id = xelib.GetValue(record, 'EDID');
 
     const model = xelib.GetValue(record, 'MODL\\MODL');
@@ -43,12 +39,12 @@ function AddWeapon(settings, locals, record) {
     
     // TODO: Requiem Support?
 
-    xelib.AddArrayItem(locals.List.keywordBaseWeapon, 'FormIDs', '', xelib.LongName(record));
-    xelib.AddArrayItem(locals.List.keywordLeftWeapon, 'FormIDs', '', xelib.LongName(leftWeapon));
-    xelib.AddArrayItem(locals.List.keywordLeftSheath, 'FormIDs', '', xelib.LongName(leftSheath));
+    xelib.AddArrayItem(locals.Keyword.BaseWeapon, 'FormIDs', '', xelib.LongName(record));
+    xelib.AddArrayItem(locals.Keyword.LeftWeapon, 'FormIDs', '', xelib.LongName(leftWeapon));
+    xelib.AddArrayItem(locals.Keyword.LeftSheath, 'FormIDs', '', xelib.LongName(leftSheath));
 }
 
-function AddStaff(settings, locals, record) {
+function AddStaff(helpers, settings, locals, record) {
     const id = xelib.GetValue(record, 'EDID');
 
     const model = xelib.GetValue(record, 'MODL\\MODL');
@@ -86,12 +82,12 @@ function AddStaff(settings, locals, record) {
 
     // TODO: Requiem Support?
 
-    xelib.AddArrayItem(locals.List.keywordBaseStaff, 'FormIDs', '', xelib.LongName(record));
-    xelib.AddArrayItem(locals.List.keywordLeftStaff, 'FormIDs', '', xelib.LongName(leftStaff));
-    xelib.AddArrayItem(locals.List.keywordRightStaff, 'FormIDs', '', xelib.LongName(rightStaff));
+    xelib.AddArrayItem(locals.Keyword.BaseStaff, 'FormIDs', '', xelib.LongName(record));
+    xelib.AddArrayItem(locals.Keyword.LeftStaff, 'FormIDs', '', xelib.LongName(leftStaff));
+    xelib.AddArrayItem(locals.Keyword.RightStaff, 'FormIDs', '', xelib.LongName(rightStaff));
 }
 
-function AddShield(settings, locals, record) {
+function AddShield(helpers, settings, locals, record) {
     const id = xelib.GetValue(record, 'EDID');
 
     const model = xelib.GetValue(record, 'Male world model\\MOD2');
@@ -108,21 +104,33 @@ function AddShield(settings, locals, record) {
     // Addons
     const shieldOnBackAA = helpers.copyToPatch(locals.templateARMA, true);
     xelib.SetValue(shieldOnBackAA, 'EDID', 'DSR_SB_' + id + 'AA');
-    xelib.AddElementValue(shieldOnBackAA, 'Male world model\\MOD2', newModel);   
+    xelib.AddElementValue(shieldOnBackAA, 'Male world model\\MOD2', modelOnBack);   
     xelib.SetFlag(shieldOnBackAA, 'BOD2\\First Person Flags', settings.leftBipedSlot, true);
     xelib.SetFlag(shieldOnBackAA, 'BOD2\\First Person Flags', '39 - Shield', true);
     
     const shieldOnBackAAClk = helpers.copyToPatch(shieldOnBackAA, true);
     xelib.SetValue(shieldOnBackAAClk, 'EDID', 'DSR_SBC_' + id + 'AA');
-    xelib.AddElementValue(shieldOnBackAAClk, 'Male world model\\MOD2', newModelClk); 
+    xelib.AddElementValue(shieldOnBackAAClk, 'Male world model\\MOD2', modelOnBackClk); 
 
     // Alternate Textures
-    const texture = xelib.GetElement(record, 'Male world model\\MO2S\\[0]');
-    if (texture) {
-        const array1 = xelib.AddElement(shieldOnBackAA, 'Male world model\\MO2S');
-        const array2 = xelib.AddElement(shieldOnBackAAClk, 'Male world model\\MO2S');
-        xelib.CopyElement(texture, array1);        
-        xelib.CopyElement(texture, array2);    
+    if (xelib.GetElement(record, 'Male world model\\MO2S\\[0]')) {
+        const altArray = xelib.GetElements(record, 'Male world model\\MO2S', false);
+        const newArray1 = xelib.AddElement(shieldOnBackAA, 'Male world model\\MO2S');
+        const newArray2 = xelib.AddElement(shieldOnBackAAClk, 'Male world model\\MO2S');
+
+        altArray.forEach(altSet => {
+            const altName = xelib.GetValue(altSet, '3D Name');
+            const altTexture = xelib.GetValue(altSet, 'New Texture');
+            const altIndex = xelib.GetIntValue(altSet, '3D Index');
+
+            const item1 = xelib.AddArrayItem(newArray1, '', '3D Name', altName);
+            xelib.SetValue(item1, 'New Texture', altTexture);
+            xelib.SetIntValue(item1, '3D Index', altIndex);
+
+            const item2 = xelib.AddArrayItem(newArray2, '', '3D Name', altName);
+            xelib.SetValue(item2, 'New Texture', altTexture);
+            xelib.SetIntValue(item2, '3D Index', altIndex);
+        })
     }
 
     // Armor
@@ -145,11 +153,11 @@ function AddShield(settings, locals, record) {
 
     // TODO: Requiem Support?
 
-    xelib.AddArrayItem(locals.List.keywordBaseShield, 'FormIDs', '', xelib.LongName(record));
-    xelib.AddArrayItem(locals.List.keywordBackShield, 'FormIDs', '', xelib.LongName(shieldOnBack));
-    xelib.AddArrayItem(locals.List.keywordBackShieldNPC, 'FormIDs', '', xelib.LongName(shieldOnBackNPC));
-    xelib.AddArrayItem(locals.List.keywordBackShieldClk, 'FormIDs', '', xelib.LongName(shieldOnBackClk));
-    xelib.AddArrayItem(locals.List.keywordBackShieldNPCClk, 'FormIDs', '', xelib.LongName(shieldOnBackNPCClk));
+    xelib.AddArrayItem(locals.Keyword.BaseShield, 'FormIDs', '', xelib.LongName(record));
+    xelib.AddArrayItem(locals.Keyword.BackShield, 'FormIDs', '', xelib.LongName(shieldOnBack));
+    xelib.AddArrayItem(locals.Keyword.BackShieldNPC, 'FormIDs', '', xelib.LongName(shieldOnBackNPC));
+    xelib.AddArrayItem(locals.Keyword.BackShieldClk, 'FormIDs', '', xelib.LongName(shieldOnBackClk));
+    xelib.AddArrayItem(locals.Keyword.BackShieldNPCClk, 'FormIDs', '', xelib.LongName(shieldOnBackNPCClk));
 }
 
 registerPatcher({
@@ -173,57 +181,56 @@ registerPatcher({
             return 100;
         },
         initialize: () => {
-            const skyrim = 'Skyrim.esm';
-            const master = 'Dual Sheath Redux.esp';
+            const fileSkyrim = 'Skyrim.esm';
+            const fileMaster = 'Dual Sheath Redux.esp';
 
             locals = {
                 dataPath: xelib.GetGlobal('DataPath'),
-                templateARMA: xelib.GetElement(0, `${master}\\ARMA\\DSR_ARMATemplate`),
-                templateARMO: xelib.GetElement(0, `${master}\\ARMO\\DSR_ARMOTemplate`),
-                effectDSR: xelib.GetElement(0, `${master}\\MGEF\\DualSheathReduxEffect`),
-                keywordArmorShield: xelib.GetElement(0, `${skyrim}\\KYWD\\ArmorShield`),
+                templateARMA: xelib.GetElement(0, `${fileMaster}\\ARMA\\DSR_ARMATemplate`),
+                templateARMO: xelib.GetElement(0, `${fileMaster}\\ARMO\\DSR_ARMOTemplate`),
+                effectDSR: xelib.GetElement(0, `${fileMaster}\\MGEF\\DualSheathReduxEffect`),
+                keywordArmorShield: xelib.EditorID(xelib.GetElement(0, `${fileSkyrim}\\KYWD\\ArmorShield`))
             }
 
-            locals.List = {
-                keywordBaseWeapon: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordLeftWeapon: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordLeftSheath: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordBaseStaff: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordRightStaff: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordLeftStaff: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordBaseShield: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordBackShield: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordBackShieldNPC: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordBackShieldClk: xelib.AddElement(patchFile, 'FLST\\FLST'),
-                keywordBackShieldNPCClk: xelib.AddElement(patchFile, 'FLST\\FLST')
+            locals.Keyword = {
+                BaseWeapon: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                LeftWeapon: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                LeftSheath: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                BaseStaff: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                RightStaff: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                LeftStaff: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                BaseShield: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                BackShield: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                BackShieldNPC: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                BackShieldClk: xelib.AddElement(patchFile, 'FLST\\FLST'),
+                BackShieldNPCClk: xelib.AddElement(patchFile, 'FLST\\FLST')
             }
 
-            helpers.cacheRecord(locals.List.keywordBaseWeapon, "DSR_BaseWeaponList");
-            helpers.cacheRecord(locals.List.keywordLeftWeapon, "DSR_LeftWeaponList");
-            helpers.cacheRecord(locals.List.keywordLeftSheath, "DSR_LeftSheathList");
-            helpers.cacheRecord(locals.List.keywordBaseStaff, "DSR_BaseStaffList");
-            helpers.cacheRecord(locals.List.keywordRightStaff, "DSR_RightStaffList");
-            helpers.cacheRecord(locals.List.keywordLeftStaff, "DSR_LeftStaffList");
-            helpers.cacheRecord(locals.List.keywordBaseShield, "DSR_BaseShieldList");
-            helpers.cacheRecord(locals.List.keywordBackShield, "DSR_BackShieldList");
-            helpers.cacheRecord(locals.List.keywordBackShieldNPC, "DSR_BackShieldListNPC");
-            helpers.cacheRecord(locals.List.keywordBackShieldClk, "DSR_BackShieldListClk");
-            helpers.cacheRecord(locals.List.keywordBackShieldNPCClk, "DSR_BackShieldListNPCClk");
+            helpers.cacheRecord(locals.Keyword.BaseWeapon, "DSR_BaseWeaponList");
+            helpers.cacheRecord(locals.Keyword.LeftWeapon, "DSR_LeftWeaponList");
+            helpers.cacheRecord(locals.Keyword.LeftSheath, "DSR_LeftSheathList");
+            helpers.cacheRecord(locals.Keyword.BaseStaff, "DSR_BaseStaffList");
+            helpers.cacheRecord(locals.Keyword.RightStaff, "DSR_RightStaffList");
+            helpers.cacheRecord(locals.Keyword.LeftStaff, "DSR_LeftStaffList");
+            helpers.cacheRecord(locals.Keyword.BaseShield, "DSR_BaseShieldList");
+            helpers.cacheRecord(locals.Keyword.BackShield, "DSR_BackShieldList");
+            helpers.cacheRecord(locals.Keyword.BackShieldNPC, "DSR_BackShieldListNPC");
+            helpers.cacheRecord(locals.Keyword.BackShieldClk, "DSR_BackShieldListClk");
+            helpers.cacheRecord(locals.Keyword.BackShieldNPCClk, "DSR_BackShieldListNPCClk");
 
             helpers.logMessage(`DSR: Processing records...`);
+            let processed = 0
 
-            let Added = 0
-            
             // Add weapons to list
             const weapons = helpers.loadRecords('WEAP');
             weapons.forEach(record => {
                 helpers.addProgress(50/weapons.length);
 
                 if (xelib.EditorID(record) == '')
-                    return false;
+                    return;
 
                 const equip = xelib.GetValue(record, 'ETYP');
-                if ((equip == 'BothHands [EQUP:00013F45]') || (type == ''))
+                if ((equip == 'BothHands [EQUP:00013F45]') || (equip == ''))
                     return;
 
                 const anim = xelib.GetValue(record, 'DNAM\\Animation Type');
@@ -232,29 +239,28 @@ registerPatcher({
                     case 'OneHandAxe':
                     case 'OneHandMace':
                     case 'OneHandDagger':
-                        AddWeapon(settings, locals, record);
+                        AddWeapon(helpers, settings, locals, record);
                         break;
                     case 'Staff':
-                        AddStaff(settings, locals, record);
+                        AddStaff(helpers, settings, locals, record);
                         break;
                     default:
                         return;
                 }
 
-                Added += 1;
+                processed += 1;
             });
 
-            helpers.logMessage(`DSR: Added ${Added} weapon records to lists`);
-            
-            Added = 0
-            
+            helpers.logMessage(`DSR: Processed ${processed} weapon/staff records`);
+            processed = 0
+
             // Add armors to list
             const armors = helpers.loadRecords('ARMO');
             armors.forEach(record => {
                 helpers.addProgress(50/armors.length);   
 
                 if (xelib.EditorID(record) == '')
-                    return false;
+                    return;
 
                 const flag = xelib.GetRecordFlag(record, 'Shield');
                 if (!flag)
@@ -264,25 +270,25 @@ registerPatcher({
                 if (!keyword)
                     return;
 
-                AddShield(settings, locals, record);
+                AddShield(helpers, settings, locals, record);
 
-                Added += 1;   
+                processed += 1;   
             });
 
-            helpers.logMessage(`DSR: Added ${Added} armor records to lists`);
+            helpers.logMessage(`DSR: Processed ${processed} shield records`);
 
             // Add lists to effect array
             const effect = xelib.CopyElement(locals.effectDSR, patchFile);
             const script = xelib.GetScript(effect, 'DualSheathReduxEffect');
             const property = xelib.AddScriptProperty(script, 'Lists', 'Array of Object', 'Edited');
 
-            const list = Object.values(locals.List)
-            for (const prop of list) {
-                let item = xelib.AddArrayItem(property, 'Value\\[0]', 'Object v2\\FormID', xelib.LongName(prop)); 
+            const keywords = Object.values(locals.Keyword);
+            for (const prop of keywords) {
+                const item = xelib.AddArrayItem(property, 'Value\\[0]', 'Object v2\\FormID', xelib.LongName(prop));
                 xelib.SetValue(item, 'Object v2\\Alias', 'None');
             }
 
-            helpers.logMessage(`DSR: Finished`);
+            helpers.logMessage('DSR: Finished');
         },
         process: []
     })
