@@ -5,6 +5,8 @@ At this point, everything should mostly work, besides some of the extras the jav
 
 You're going to need the latest [zEdit](https://github.com/z-edit/zedit) release
 
+Supports: Skyrim, Skyrim Special Edition
+
 
 # Todo
 - Requiem support?
